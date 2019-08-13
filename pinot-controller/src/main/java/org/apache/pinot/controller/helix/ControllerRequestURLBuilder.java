@@ -18,8 +18,9 @@
  */
 package org.apache.pinot.controller.helix;
 
-import org.apache.avro.reflect.Nullable;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.apache.pinot.common.utils.InstancePartitionsType;
 import org.apache.pinot.common.utils.StringUtil;
 import org.apache.pinot.common.utils.URIUtils;
 
@@ -201,5 +202,43 @@ public class ControllerRequestURLBuilder {
 
   public String forSegmentListAPI(String tableName) {
     return StringUtil.join("/", _baseUrl, "segments", tableName);
+  }
+
+  public String forInstancePartitions(String instancePartitionsName) {
+    return StringUtil.join("/", _baseUrl, "tables/instancePartitions", instancePartitionsName);
+  }
+
+  public String forInstancePartitionsForTable(String tableName) {
+    return StringUtil.join("/", _baseUrl, "tables/instancePartitions") + "?tableName=" + tableName;
+  }
+
+  public String forInstancePartitionsPost() {
+    return StringUtil.join("/", _baseUrl, "tables/instancePartitions");
+  }
+
+  public String forInstanceAssign(String tableName, @Nullable InstancePartitionsType instancePartitionsType,
+      boolean dryRun) {
+    String url = StringUtil.join("/", _baseUrl, "tables", tableName, "assignInstances");
+    if (instancePartitionsType != null) {
+      url += "?type=" + instancePartitionsType;
+      if (dryRun) {
+        url += "&dryRun=true";
+      }
+    } else {
+      if (dryRun) {
+        url += "?dryRun=true";
+      }
+    }
+    return url;
+  }
+
+  public String forInstanceReplace(String instancePartitionsName, String oldInstanceId, String newInstanceId) {
+    return StringUtil.join("/", _baseUrl, "tables/instancePartitions/replaceInstance", instancePartitionsName)
+        + "?oldInstanceId=" + oldInstanceId + "&newInstanceId=" + newInstanceId;
+  }
+
+  public String forInstanceReplaceForTable(String tableName, String oldInstanceId, String newInstanceId) {
+    return StringUtil.join("/", _baseUrl, "tables/instancePartitions/replaceInstance") + "?tableName=" + tableName
+        + "&oldInstanceId=" + oldInstanceId + "&newInstanceId=" + newInstanceId;
   }
 }
